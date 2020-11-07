@@ -2,6 +2,7 @@ export default class {
   constructor(specs) {
     this.selector = specs.selector;
     this.targetDate = specs.targetDate;
+    this.element = document.createElement('span');
   }
   createTimer() {
     return new Promise((resolve, reject) => {
@@ -10,43 +11,24 @@ export default class {
         ? resolve(timerRef)
         : reject('The timer cannot be found by ID');
     });
-    const time = Date.parse(superTimer.targetDate) - Date.now();
-    const days = Math.floor(time / (1000 * 60 * 60 * 24));
-
-    /*
-     * Оставшиеся часы: получаем остаток от предыдущего расчета с помощью оператора
-     * остатка % и делим его на количество миллисекунд в одном часе
-     * (1000 * 60 * 60 = миллисекунды * минуты * секунды)
-     */
-    const hours = Math.floor((time % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-
-    /*
-     * Оставшиеся минуты: получаем оставшиеся минуты и делим их на количество
-     * миллисекунд в одной минуте (1000 * 60 = миллисекунды * секунды)
-     */
-    const mins = Math.floor((time % (1000 * 60 * 60)) / (1000 * 60));
-
-    /*
-     * Оставшиеся секунды: получаем оставшиеся секунды и делим их на количество
-     * миллисекунд в одной секунде (1000)
-     */
-    const secs = Math.floor((time % (1000 * 60)) / 1000);
   }
   parseTimerHTML(timerRef) {
     timerRef.innerHTML =
       '<div class="field"><span class="value" data - value="days">11</span><span class="label">Days</span></div><div class="field"><span class="value" data-value="hours">11</span><span class="label">Hours</span></div><div class="field"><span class="value" data-value="mins">11</span><span class="label">Minutes</span></div><div class="field"><span class="value" data-value="secs">11</span><span class="label">Seconds</span></div>';
     const timerObj = {
       timerRef: timerRef,
-      fieldRef: document.querySelectorAll('.field'),
+      titleRef: document.querySelector('.new-year-timer'),
       valueRef: document.querySelectorAll('.value'),
       labelRef: document.querySelectorAll('.label'),
     };
     return timerObj;
   }
   startTimer(timerObj) {
-    const { timerRef, fieldRef, valueRef, labelRef } = timerObj;
-    setInterval(value => {
+    const { timerRef, titleRef, valueRef, labelRef } = timerObj;
+
+    const intervalSet = setInterval(() => {
       const time = Date.parse(this.targetDate) - Date.now();
+
       valueRef[0].textContent = Math.floor(time / (1000 * 60 * 60 * 24));
       valueRef[1].textContent = Math.floor(
         (time % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60),
@@ -55,7 +37,39 @@ export default class {
         (time % (1000 * 60 * 60)) / (1000 * 60),
       );
       valueRef[3].textContent = Math.floor((time % (1000 * 60)) / 1000);
+
+      labelRef[0].textContent = valueRef[0].textContent == 1 ? 'Day' : 'Days';
+      labelRef[1].textContent = valueRef[1].textContent == 1 ? 'Hour' : 'Hours';
+      labelRef[2].textContent =
+        valueRef[2].textContent == 1 ? 'Minute' : 'Minutes';
+      labelRef[3].textContent =
+        valueRef[3].textContent == 1 ? 'Second' : 'Seconds';
+
+      if (
+        valueRef[0].textContent == 0 &&
+        valueRef[3].textContent == 0 &&
+        valueRef[3].textContent == 0 &&
+        valueRef[3].textContent == 0
+      ) {
+        clearInterval(intervalSet);
+        titleRef.textContent = 'HAPPY NEW YEAR!!!';
+        titleRef.style.fontSize = '50px';
+        console.dir(titleRef.style);
+      }
     }, 1000);
+    Array.from(valueRef).map(el =>
+      el.addEventListener('DOMSubtreeModified', this.animateTimer.bind(this)),
+    );
+  }
+  animateTimer({ target }) {
+    this.element.remove();
+    this.element = document.createElement('span');
+    this.element.textContent = target.textContent;
+    this.element.classList.add('value', 'after');
+    target.parentElement.appendChild(this.element);
+    setTimeout(() => {
+      this.element.classList.add('trans');
+    }, 100);
   }
   startCountdown() {
     return this.createTimer()
