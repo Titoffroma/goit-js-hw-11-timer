@@ -14,7 +14,7 @@ export default class {
   }
   parseTimerHTML(timerRef) {
     timerRef.innerHTML =
-      '<div class="field"><span class="value" data - value="days">11</span><span class="label">Days</span></div><div class="field"><span class="value" data-value="hours">11</span><span class="label">Hours</span></div><div class="field"><span class="value" data-value="mins">11</span><span class="label">Minutes</span></div><div class="field"><span class="value" data-value="secs">11</span><span class="label">Seconds</span></div>';
+      '<div class="field"><span class="value" data-value="days">11</span><span class="label">Days</span></div><div class="field"><span class="value" data-value="hours">11</span><span class="label">Hours</span></div><div class="field"><span class="value" data-value="mins">11</span><span class="label">Minutes</span></div><div class="field"><span class="value" data-value="secs">11</span><span class="label">Seconds</span></div>';
     const timerObj = {
       timerRef: timerRef,
       titleRef: document.querySelector('.new-year-timer'),
@@ -45,31 +45,31 @@ export default class {
       labelRef[3].textContent =
         valueRef[3].textContent == 1 ? 'Second' : 'Seconds';
 
-      if (
-        valueRef[0].textContent == 0 &&
-        valueRef[3].textContent == 0 &&
-        valueRef[3].textContent == 0 &&
-        valueRef[3].textContent == 0
-      ) {
+      if (time == 0) {
         clearInterval(intervalSet);
         titleRef.textContent = 'HAPPY NEW YEAR!!!';
         titleRef.style.fontSize = '50px';
-        console.dir(titleRef.style);
       }
     }, 1000);
-    Array.from(valueRef).map(el =>
-      el.addEventListener('DOMSubtreeModified', this.animateTimer.bind(this)),
+
+    timerRef.addEventListener(
+      'DOMSubtreeModified',
+      this.animateTimer.bind(this),
     );
   }
   animateTimer({ target }) {
-    this.element.remove();
-    this.element = document.createElement('span');
-    this.element.textContent = target.textContent;
-    this.element.classList.add('value', 'after');
-    target.parentElement.appendChild(this.element);
-    setTimeout(() => {
-      this.element.classList.add('trans');
-    }, 100);
+    if (target.classList.contains('value')) {
+      target.insertAdjacentHTML(
+        'afterEnd',
+        `<span class="value after">${target.textContent}</span>`,
+      );
+      setTimeout(() => {
+        target.nextSibling.classList.add('trans');
+      }, 200);
+      setTimeout(() => {
+        target.nextSibling.remove();
+      }, 900);
+    }
   }
   startCountdown() {
     return this.createTimer()
