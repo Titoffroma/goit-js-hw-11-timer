@@ -2,7 +2,6 @@ export default class {
   constructor(specs) {
     this.selector = specs.selector;
     this.targetDate = specs.targetDate;
-    this.element = document.createElement('span');
   }
   createTimer() {
     return new Promise((resolve, reject) => {
