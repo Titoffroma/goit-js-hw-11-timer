@@ -2,6 +2,7 @@ export default class {
   constructor(specs) {
     this.selector = specs.selector;
     this.targetDate = specs.targetDate;
+    this.startCountdown();
   }
   createTimer() {
     return new Promise((resolve, reject) => {
@@ -22,9 +23,7 @@ export default class {
     };
     return timerObj;
   }
-  startTimer(timerObj) {
-    const { timerRef, titleRef, valueRef, labelRef } = timerObj;
-
+  startTimer({ timerRef, titleRef, valueRef, labelRef }) {
     const intervalSet = setInterval(() => {
       const time = Date.parse(this.targetDate) - Date.now();
 
@@ -51,10 +50,7 @@ export default class {
       }
     }, 1000);
 
-    timerRef.addEventListener(
-      'DOMSubtreeModified',
-      this.animateTimer.bind(this),
-    );
+    timerRef.addEventListener('DOMSubtreeModified', this.animateTimer);
   }
   animateTimer({ target }) {
     if (target.classList.contains('value')) {
